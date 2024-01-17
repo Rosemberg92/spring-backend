@@ -5,12 +5,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rosemberg.springboot.app.springbootcrud.models.Beer;
 import com.rosemberg.springboot.app.springbootcrud.repositories.BeerRepository;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -26,7 +29,7 @@ public class BeerController {
         return beerRepository.findAll();
     }
 
-    @GetMapping("/api/createBeers")
+    /*@GetMapping("/api/createBeers")
     public void createBeer() {
         Beer beer = new Beer();
         beer.setBeerName("Cortacorriente");
@@ -38,8 +41,9 @@ public class BeerController {
         beer.setBeerDescription("Hazy IPA con lúpulos Citra, Mosaic y Simcoe. Aromas a frutas tropicales, cítricos y un toque a pino. Cuerpo medio, amargor medio y final seco.");
         beer.setBeerRate(5);
         beerRepository.save(beer);
-    }
+    }*/
 
+    //Create a new beer
     @PostMapping("/api/beers/add")
     public ResponseEntity<Beer> saveBeer(@RequestBody Beer beer) {
         if (beer.getId() != null) {
@@ -49,5 +53,36 @@ public class BeerController {
         return ResponseEntity.ok(beer);
     }
 
+    //list beers
+    @PutMapping("/api/beers/add")
+    public ResponseEntity<Beer> updateBeer(@RequestBody Beer beer) {
+        if (beer.getId() == null || !beerRepository.existsById(beer.getId())) {
+            return ResponseEntity.badRequest().build();
+        }
+        beerRepository.save(beer);
+        return ResponseEntity.ok(beer);
+    }
 
+    //delete beer
+    @CrossOrigin(origins = "*")
+    @DeleteMapping("/api/beers/{id}")
+    public ResponseEntity<Beer> deleteBeer(@PathVariable Long id) {
+        if (id == null || !beerRepository.existsById(id)) {
+            return ResponseEntity.badRequest().build();
+        }
+        beerRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+    //edit beer
+    @GetMapping("/api/beers/{id}")
+    public ResponseEntity<Beer> getBeerById(@PathVariable Long id) {
+        if (id == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Beer beer = beerRepository.findById(id).orElse(null);
+        if (beer == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(beer);
+    }
 }
